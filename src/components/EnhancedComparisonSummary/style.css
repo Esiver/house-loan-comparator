@@ -1,0 +1,342 @@
+/* src/components/ComparisonSummary/enhancedStyle.css */
+
+.enhanced-summary-container {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  font-family: system-ui, sans-serif;
+}
+
+.enhanced-summary-container h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #1e293b;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* Overview Cards */
+.overview-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.overview-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.overview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.overview-card.best-deal {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+}
+
+.overview-card h3 {
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.overview-card .scenario-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0.5rem 0;
+}
+
+.overview-card .total-cost,
+.overview-card .count,
+.overview-card .savings {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #059669;
+  margin: 0.5rem 0;
+}
+
+.overview-card .subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Table Styles */
+.table-container {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table th {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  color: white;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.comparison-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+.comparison-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.comparison-table tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.best-scenario {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border-left: 4px solid #10b981;
+}
+
+.best-scenario:hover {
+  background: linear-gradient(135deg, #ecfdf5 0%, #f8fafc 100%);
+}
+
+/* Cell-specific styles */
+.scenario-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.best-badge {
+  background: #10b981;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.currency-cell {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.total-cost {
+  font-size: 1.1rem;
+}
+
+.savings-cell .savings-positive {
+  color: #059669;
+  font-weight: 600;
+}
+
+.savings-percentage {
+  display: block;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.no-savings {
+  color: #94a3b8;
+}
+
+.kurstab-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.kurstab-percentage {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.details-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background-color 0.2s ease;
+}
+
+.details-btn:hover {
+  background: #2563eb;
+}
+
+/* Details Row */
+.details-row {
+  background: #f8fafc;
+}
+
+.loan-details {
+  padding: 1.5rem;
+}
+
+.loan-details h4 {
+  margin: 0 0 1.5rem 0;
+  color: #1e293b;
+  font-size: 1.2rem;
+}
+
+.loan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.loan-detail-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.loan-detail-card h5 {
+  margin: 0 0 1rem 0;
+  color: #1e293b;
+  font-size: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.detail-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+}
+
+.stat .label {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.stat .value {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.85rem;
+}
+
+.scenario-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.summary-stat .label {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.summary-stat .value {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1.1rem;
+}
+
+/* Insights Section */
+.insights-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.insights-section h3 {
+  margin: 0 0 1rem 0;
+  color: #1e293b;
+  font-size: 1.3rem;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.insight {
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.insight strong {
+  color: #1e293b;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .enhanced-summary-container {
+    padding: 1rem;
+    margin: 1rem;
+  }
+  
+  .overview-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .comparison-table {
+    font-size: 0.85rem;
+  }
+  
+  .comparison-table th,
+  .comparison-table td {
+    padding: 0.5rem;
+  }
+  
+  .loan-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .scenario-summary {
+    grid-template-columns: 1fr;
+  }
+}

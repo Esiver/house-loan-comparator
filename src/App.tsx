@@ -2,17 +2,17 @@
 
 import React, { useState, useMemo } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Scenario as ScenarioType, ScenarioCalculationResults } from './types/index';
-import { calculateMonthlyPayment } from './utils/loanCalculations';
+import { Scenario as ScenarioType } from './types/index';
+import { calculateMultipleScenarios, EnhancedScenarioResults } from './utils/scenarioCalculations';
 import { Scenario } from './components/Scenario/Scenario';
-import { ComparisonSummary } from './components/ComparisonSummary/ComparisonSummary';
+import { EnhancedComparisonSummary } from './components/EnhancedComparisonSummary/EnhancedComparisonSummary';
 import './styles/App.css';
 
 // Initial state with a sample scenario to guide the user
 const initialScenarios: ScenarioType[] = [
   {
     id: uuidv4(),
-    name: 'Jyske Bank',
+    name: 'Jyske Bank Offer',
     loans: [
       {
         id: uuidv4(),
@@ -31,7 +31,33 @@ const initialScenarios: ScenarioType[] = [
         interestRate: 3.1,
         termInYears: 30,
         type: 'fixed',
-        kurs:94.7331,
+        kurs: 94.7331,
+        interestFrequency: 4
+      },
+    ],
+  },
+  {
+    id: uuidv4(),
+    name: 'Alternative Bank Offer',
+    loans: [
+      {
+        id: uuidv4(),
+        name: 'Bank Loan (Banklån)',
+        principal: 600000,
+        interestRate: 3.25,
+        termInYears: 20,
+        type: 'fixed',
+        interestFrequency: 4,
+        kurs: 100
+      },
+      {
+        id: uuidv4(),
+        name: 'Mortgage (Realkreditlån)',
+        principal: 3196000,
+        interestRate: 2.95,
+        termInYears: 30,
+        type: 'fixed',
+        kurs: 96.2,
         interestFrequency: 4
       },
     ],
@@ -44,7 +70,11 @@ const App: React.FC = () => {
   const handleAddScenario = () => {
     setScenarios([
       ...scenarios,
-      { id: uuidv4(), name: `New Scenario ${scenarios.length + 1}`, loans: [] },
+      { 
+        id: uuidv4(), 
+        name: `Scenario ${scenarios.length + 1}`, 
+        loans: [] 
+      },
     ]);
   };
 
@@ -58,67 +88,37 @@ const App: React.FC = () => {
     setScenarios(scenarios.filter((s) => s.id !== scenarioId));
   };
 
-  // useMemo will re-calculate only when the scenarios state changes.
-  const summaryResults: ScenarioCalculationResults[] = useMemo(() => {
-    return scenarios.map((scenario) => {
-      let totalPrincipal = 0;
-      let monthlyPayment = 0;
-      let totalPaidOverTime = 0;
-      
-      let totalKurstab = 0;
-
-      scenario.loans.forEach((loan) => {
-        const loanMonthlyPayment = calculateMonthlyPayment(
-          loan.principal,
-          loan.interestRate,
-          loan.termInYears
-        );
-        const kurstab = loan.principal * (1 - (loan.kurs || 100) / 100)
-        totalPrincipal += loan.principal;
-        monthlyPayment += loanMonthlyPayment;
-        totalPaidOverTime += loanMonthlyPayment * loan.termInYears * 12;
-        totalKurstab += kurstab;
-      });
-
-      const totalInterest = totalPaidOverTime - totalPrincipal;
-      const totalCost = totalPrincipal + totalInterest + totalKurstab;
-
-      return {
-        scenarioId: scenario.id,
-        scenarioName: scenario.name,
-        totalPrincipal,
-        monthlyPayment,
-        totalKurstab,
-        totalInterest,
-        totalCost,
-      };
-    });
+  // Enhanced calculation results using the new business logic
+  const enhancedResults: EnhancedScenarioResults[] = useMemo(() => {
+    return calculateMultipleScenarios(scenarios);
   }, [scenarios]);
-
 
   return (
     <div className="App">
       <header>
-        <h1>Danish Housing Loan Comparator</h1>
-        <p>Create different scenarios with combined loans to compare your options.</p>
+        <h1>🏠 Danish Housing Loan Comparator</h1>
+        <p>Create different scenarios with combined loans to find your best mortgage option.</p>
       </header>
 
       <main>
-        <ComparisonSummary results={summaryResults} />
+        <EnhancedComparisonSummary results={enhancedResults} />
         
-        <div className="scenarios-list">
-          {scenarios.map((scenario) => (
-            <Scenario
-              key={scenario.id}
-              scenario={scenario}
-              onUpdate={handleUpdateScenario}
-              onRemove={() => handleRemoveScenario(scenario.id)}
-            />
-          ))}
-        </div>
-        <button onClick={handleAddScenario} className="add-btn add-scenario-btn">
+        <div className="scenarios-section">
+          <h2>📋 Your Loan Scenarios</h2>
+          <div className="scenarios-list">
+            {scenarios.map((scenario) => (
+              <Scenario
+                key={scenario.id}
+                scenario={scenario}
+                onUpdate={handleUpdateScenario}
+                onRemove={() => handleRemoveScenario(scenario.id)}
+              />
+            ))}
+          </div>
+          <button onClick={handleAddScenario} className="add-btn add-scenario-btn">
           + Add Comparison Scenario
         </button>
+        </div>
       </main>
     </div>
   );
