@@ -1,4 +1,4 @@
-// src/utils/scenarioCalculations.ts
+// src/utils/scenarioCalculations.ts - Enhanced calculation that properly accounts for bond prices (kurs)
 
 import { Scenario, ScenarioCalculationResults, Loan } from '../types';
 import { calculateMonthlyPayment } from './loanCalculations';
@@ -10,6 +10,8 @@ export interface DetailedLoanResult {
   totalInterest: number;
   kurstab: number;
   effectiveInterestRate: number;
+  amountReceived: number; // New: actual amount received after kurs
+  effectiveLoanAmount: number; // New: for comparison purposes
 }
 
 export interface EnhancedScenarioResults extends ScenarioCalculationResults {
@@ -17,13 +19,16 @@ export interface EnhancedScenarioResults extends ScenarioCalculationResults {
   averageInterestRate: number;
   totalLoanTerm: number;
   kurstabPercentage: number;
-  interestToIncomeRatio?: number; // Optional for future use
+  totalAmountReceived: number; // New: total cash received
+  effectiveInterestRate: number; // New: overall effective rate
+  interestToIncomeRatio?: number;
 }
 
 /**
- * Calculate detailed results for a single loan
+ * Enhanced loan calculation that properly accounts for bond issue prices (kurs)
  */
 export const calculateLoanDetails = (loan: Loan): DetailedLoanResult => {
+  // Monthly payment is based on the nominal principal (what you pay back)
   const monthlyPayment = calculateMonthlyPayment(
     loan.principal,
     loan.interestRate,
@@ -32,11 +37,17 @@ export const calculateLoanDetails = (loan: Loan): DetailedLoanResult => {
   
   const totalPayment = monthlyPayment * loan.termInYears * 12;
   const totalInterest = totalPayment - loan.principal;
-  const kurstab = loan.principal * (1 - (loan.kurs || 100) / 100);
   
-  // Calculate effective interest rate including kurstab
-  const effectiveInterestRate = loan.kurs < 100 
-    ? ((totalInterest + kurstab) / loan.principal) / loan.termInYears * 100
+  // Amount actually received (principal × kurs/100)
+  const amountReceived = loan.principal * (loan.kurs || 100) / 100;
+  
+  // Kurstab is the immediate loss from issue price below par
+  const kurstab = loan.principal - amountReceived;
+  
+  // Effective interest rate considering both interest and kurstab
+  // This shows the true cost of borrowing relative to amount received
+  const effectiveInterestRate = amountReceived > 0 
+    ? ((totalInterest + kurstab) / amountReceived) / loan.termInYears * 100
     : loan.interestRate;
 
   return {
@@ -46,11 +57,13 @@ export const calculateLoanDetails = (loan: Loan): DetailedLoanResult => {
     totalInterest,
     kurstab,
     effectiveInterestRate,
+    amountReceived,
+    effectiveLoanAmount: amountReceived, // For weighted calculations
   };
 };
 
 /**
- * Calculate comprehensive scenario results with detailed breakdown
+ * Enhanced scenario calculation with proper bond price consideration
  */
 export const calculateScenarioResults = (scenario: Scenario): EnhancedScenarioResults => {
   if (!scenario.loans || scenario.loans.length === 0) {
@@ -66,10 +79,11 @@ export const calculateScenarioResults = (scenario: Scenario): EnhancedScenarioRe
       averageInterestRate: 0,
       totalLoanTerm: 0,
       kurstabPercentage: 0,
+      totalAmountReceived: 0,
+      effectiveInterestRate: 0,
     };
   }
 
-  // Calculate details for each loan
   const loanDetails = scenario.loans.map(calculateLoanDetails);
 
   // Aggregate totals
@@ -79,26 +93,38 @@ export const calculateScenarioResults = (scenario: Scenario): EnhancedScenarioRe
       monthlyPayment: acc.monthlyPayment + detail.monthlyPayment,
       totalKurstab: acc.totalKurstab + detail.kurstab,
       totalInterest: acc.totalInterest + detail.totalInterest,
+      totalAmountReceived: acc.totalAmountReceived + detail.amountReceived,
     }),
-    { totalPrincipal: 0, monthlyPayment: 0, totalKurstab: 0, totalInterest: 0 }
+    { 
+      totalPrincipal: 0, 
+      monthlyPayment: 0, 
+      totalKurstab: 0, 
+      totalInterest: 0,
+      totalAmountReceived: 0 
+    }
   );
 
   const totalCost = totals.totalPrincipal + totals.totalInterest + totals.totalKurstab;
 
-  // Calculate weighted average interest rate
+  // Weighted average interest rate based on principal amounts
   const averageInterestRate = scenario.loans.reduce(
     (acc, loan) => acc + (loan.interestRate * loan.principal),
     0
   ) / totals.totalPrincipal;
 
-  // Calculate weighted average loan term
+  // Weighted average loan term
   const totalLoanTerm = scenario.loans.reduce(
     (acc, loan) => acc + (loan.termInYears * loan.principal),
     0
   ) / totals.totalPrincipal;
 
-  // Calculate kurstab as percentage of total principal
+  // Kurstab as percentage of total principal
   const kurstabPercentage = (totals.totalKurstab / totals.totalPrincipal) * 100;
+
+  // Overall effective interest rate considering kurstab
+  const effectiveInterestRate = totals.totalAmountReceived > 0 
+    ? ((totals.totalInterest + totals.totalKurstab) / totals.totalAmountReceived) / (totalLoanTerm) * 100
+    : averageInterestRate;
 
   return {
     scenarioId: scenario.id,
@@ -109,6 +135,7 @@ export const calculateScenarioResults = (scenario: Scenario): EnhancedScenarioRe
     averageInterestRate,
     totalLoanTerm,
     kurstabPercentage,
+    effectiveInterestRate,
   };
 };
 
@@ -144,4 +171,26 @@ export const calculateSavings = (results: EnhancedScenarioResults[]) => {
     savingsVsMostExpensive: mostExpensive.totalCost - result.totalCost,
     savingsPercentage: ((mostExpensive.totalCost - result.totalCost) / mostExpensive.totalCost) * 100,
   }));
+};
+
+/**
+ * Helper function to explain the bond price impact
+ */
+export const explainBondPriceImpact = (loan: Loan) => {
+  const kurs = loan.kurs || 100;
+  const principal = loan.principal;
+  const amountReceived = principal * kurs / 100;
+  const kurstab = principal - amountReceived;
+  
+  return {
+    nominal: principal,
+    received: amountReceived,
+    loss: kurstab,
+    lossPercentage: (kurstab / principal) * 100,
+    explanation: kurs < 100 
+      ? `Issue price below par: You receive ${kurs}% of nominal value (${amountReceived.toLocaleString('da-DK')} DKK) but must repay the full nominal amount (${principal.toLocaleString('da-DK')} DKK). Immediate loss: ${kurstab.toLocaleString('da-DK')} DKK.`
+      : kurs > 100 
+      ? `Issue price above par: You receive ${kurs}% of nominal value (${amountReceived.toLocaleString('da-DK')} DKK) but only repay the nominal amount (${principal.toLocaleString('da-DK')} DKK). Immediate gain: ${Math.abs(kurstab).toLocaleString('da-DK')} DKK.`
+      : 'Issue price at par: You receive exactly the nominal amount with no immediate gain or loss.'
+  };
 };
