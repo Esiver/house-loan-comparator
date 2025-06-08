@@ -28,7 +28,7 @@ const initialScenarios: ScenarioType[] = [
         id: uuidv4(),
         name: 'Mortgage (Realkreditlån)',
         principal: 3196000,
-        interestRate: 3.1,
+        interestRate: 2.24,
         termInYears: 30,
         type: 'fixed',
         kurs: 94.7331,
@@ -38,14 +38,14 @@ const initialScenarios: ScenarioType[] = [
   },
   {
     id: uuidv4(),
-    name: 'Alternative Bank Offer',
+    name: 'Danske Bank Fri',
     loans: [
       {
         id: uuidv4(),
         name: 'Bank Loan (Banklån)',
         principal: 600000,
-        interestRate: 3.25,
-        termInYears: 20,
+        interestRate: 4.5,
+        termInYears: 30,
         type: 'fixed',
         interestFrequency: 4,
         kurs: 100
@@ -54,10 +54,10 @@ const initialScenarios: ScenarioType[] = [
         id: uuidv4(),
         name: 'Mortgage (Realkreditlån)',
         principal: 3196000,
-        interestRate: 2.95,
+        interestRate: 3.1,
         termInYears: 30,
         type: 'fixed',
-        kurs: 96.2,
+        kurs: 100,
         interestFrequency: 4
       },
     ],
@@ -96,14 +96,15 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <header>
-        <h1>🏠 Danish Housing Loan Comparator</h1>
+        <h1>🏠 Huskøb </h1>
         <p>Create different scenarios with combined loans to find your best mortgage option.</p>
+        <a href="#scenarios-section">Add Scenario</a>
       </header>
 
       <main>
         <EnhancedComparisonSummary results={enhancedResults} />
         
-        <div className="scenarios-section">
+        <div className="scenarios-section" id='scenarios-section'>
           <h2>📋 Your Loan Scenarios</h2>
           <div className="scenarios-list">
             {scenarios.map((scenario) => (

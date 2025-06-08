@@ -87,6 +87,8 @@
 .comparison-table {
   width: 100%;
   border-collapse: collapse;
+  color: #333;
+
 }
 
 .comparison-table th {
@@ -296,6 +298,7 @@
 }
 
 .insight {
+    color: #1e293b;
   padding: 1rem;
   background: #f8fafc;
   border-radius: 8px;

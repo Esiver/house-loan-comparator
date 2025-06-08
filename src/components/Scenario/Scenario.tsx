@@ -4,6 +4,7 @@ import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Loan, Scenario as ScenarioType } from '../../types';
 import { LoanForm } from '../LoanForm/LoanForm';
+import './style.css'
 
 interface ScenarioProps {
   scenario: ScenarioType;
@@ -46,7 +47,8 @@ export const Scenario: React.FC<ScenarioProps> = ({ scenario, onUpdate, onRemove
   return (
     <div className="scenario">
       <div className="scenario-header">
-        <h2>hello</h2>
+        <h2>Loan Scenario</h2>
+        
         <input 
           className="scenario-name-input"
           value={scenario.name}

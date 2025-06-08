@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Loan } from '../../types/index';
+import './style.css'
 
 interface LoanFormProps {
   loan: Loan;
