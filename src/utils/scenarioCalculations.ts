@@ -1,7 +1,7 @@
 // src/utils/scenarioCalculations.ts - Enhanced calculation that properly accounts for bond prices (kurs)
 
 import { Scenario, ScenarioCalculationResults, Loan } from '../types';
-import { calculateMonthlyPayment } from './loanCalculations';
+import { calculateMonthlyPayment, calculateIRREffectiveRate } from './loanCalculations';
 
 export interface DetailedLoanResult {
   loan: Loan;
@@ -46,9 +46,15 @@ export const calculateLoanDetails = (loan: Loan): DetailedLoanResult => {
   
   // Effective interest rate considering both interest and kurstab
   // This shows the true cost of borrowing relative to amount received
-  const effectiveInterestRate = amountReceived > 0 
-    ? ((totalInterest + kurstab) / amountReceived) / loan.termInYears * 100
-    : loan.interestRate;
+    const effectiveInterestRate = loan.kurs < 100 ? calculateIRREffectiveRate(
+  loan.principal,
+  loan.kurs,
+  monthlyPayment,
+  loan.termInYears
+) ?? loan.interestRate : loan.interestRate;
+
+
+  console.log('effectiveInterestRate: ', effectiveInterestRate, `${totalInterest} + ${kurstab} / ${amountReceived} / ${loan.termInYears} * 100`)
 
   return {
     loan,
@@ -122,9 +128,19 @@ export const calculateScenarioResults = (scenario: Scenario): EnhancedScenarioRe
   const kurstabPercentage = (totals.totalKurstab / totals.totalPrincipal) * 100;
 
   // Overall effective interest rate considering kurstab
-  const effectiveInterestRate = totals.totalAmountReceived > 0 
-    ? ((totals.totalInterest + totals.totalKurstab) / totals.totalAmountReceived) / (totalLoanTerm) * 100
-    : averageInterestRate;
+//   const effectiveInterestRate = totals.totalAmountReceived > 0 
+//     ? ((totals.totalInterest + totals.totalKurstab) / totals.totalAmountReceived) / (totalLoanTerm) * 100
+//     : averageInterestRate;
+
+
+    const totalWeightedEffectiveRate = loanDetails.reduce(
+  (acc, detail) => acc + (detail.effectiveInterestRate * detail.effectiveLoanAmount),
+  0
+);
+
+const effectiveInterestRate = totals.totalAmountReceived > 0
+  ? totalWeightedEffectiveRate / totals.totalAmountReceived
+  : averageInterestRate;
 
   return {
     scenarioId: scenario.id,
